@@ -12,6 +12,8 @@
 
 GO
 
+
+
 CREATE TABLE [dbo].[CustomUserClaim](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[UserId] [uniqueidentifier] NOT NULL,

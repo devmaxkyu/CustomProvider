@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 
 
-namespace CustomProvider.Provider
+namespace CustomProvider.Data
 {
     public class UsersTable
     {
@@ -43,6 +43,18 @@ namespace CustomProvider.Provider
                 return IdentityResult.Success;
             }
             return IdentityResult.Failed(new IdentityError { Description = $"Could not delete user {user.Email}." });
+        }
+
+        public async Task<IdentityResult> UpdateAsync(User user)
+        {
+            _context.Users.Update(user);
+
+
+            if (await _context.SaveChangesAsync() > 0)
+            {
+                return IdentityResult.Success;
+            }
+            return IdentityResult.Failed(new IdentityError { Description = $"Could not update user {user.Email}." });
         }
 
 

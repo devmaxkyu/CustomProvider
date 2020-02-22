@@ -23,7 +23,7 @@ namespace CustomProvider.Data
             modelBuilder.Entity<User>()
                 .ToTable("CustomUser");
             modelBuilder.Entity<Role>()
-                .ToTable("CustomUserRole");
+                .ToTable("CustomRole");
 
             modelBuilder.Entity<User>().Ignore(t => t.NormalizedUserName);
             modelBuilder.Entity<User>().Ignore(t => t.IsAuthenticated);
