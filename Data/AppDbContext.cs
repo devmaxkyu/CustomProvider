@@ -18,6 +18,19 @@ namespace CustomProvider.Data
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .ToTable("CustomUser");
+            modelBuilder.Entity<Role>()
+                .ToTable("CustomUserRole");
+
+            modelBuilder.Entity<User>().Ignore(t => t.NormalizedUserName);
+            modelBuilder.Entity<User>().Ignore(t => t.IsAuthenticated);
+            modelBuilder.Entity<User>().Ignore(t => t.AuthenticationType);
+            modelBuilder.Entity<User>().Ignore(t => t.Name);
+        }
+
 
     }
 }
