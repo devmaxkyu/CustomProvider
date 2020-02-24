@@ -1,39 +1,38 @@
-﻿CREATE TABLE [dbo].[CustomUser](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Email] [nvarchar](256) NULL,
-	[EmailConfirmed] [bit] NOT NULL,
-	[PasswordHash] [nvarchar](max) NULL,
-	[UserName] [nvarchar](256) NOT NULL,
- CONSTRAINT [PK_dbo.CustomUsers] PRIMARY KEY CLUSTERED 
+﻿CREATE TABLE [dbo].[CustomUser] (
+    [Id]                 UNIQUEIDENTIFIER NOT NULL,
+    [Email]              NVARCHAR (256)   NULL,
+    [EmailConfirmed]     BIT              NOT NULL,
+    [PasswordHash]       NVARCHAR (MAX)   NULL,
+    [UserName]           NVARCHAR (256)   NOT NULL,
+    [NormalizedUserName] NCHAR (256)      NULL,
+    CONSTRAINT [PK_dbo.CustomUsers] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex]
+    ON [dbo].[CustomUser]([NormalizedUserName] ASC) WHERE ([NormalizedUserName] IS NOT NULL);
+
+
+
+CREATE TABLE [dbo].[CustomRole] (
+    [Id]   UNIQUEIDENTIFIER NOT NULL,
+    [Name] VARCHAR (256)    NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+CREATE TABLE [dbo].[CustomUserRole]
 (
-	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+    [UserId] UNIQUEIDENTIFIER NOT NULL, 
+    [RoleId] UNIQUEIDENTIFIER NOT NULL, 
+    CONSTRAINT [PK_CustomUserRole] PRIMARY KEY CLUSTERED ([UserId] ASC, [RoleId] ASC),
+    CONSTRAINT [FK_CustomUserRole_CustomRole_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[CustomRole] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_CustomUserRole_CustomUser_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[CustomUser] ([Id]) ON DELETE CASCADE
+)
 
 GO
-
-
-
-CREATE TABLE [dbo].[CustomUserClaim](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[UserId] [uniqueidentifier] NOT NULL,
-	[ClaimType] [nvarchar](max) NULL,
-	[ClaimValue] [nvarchar](max) NULL,
- CONSTRAINT [PK_dbo.CustomUserClaim] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-
-GO
-
-ALTER TABLE [dbo].[CustomUserClaim]  WITH CHECK ADD  CONSTRAINT [FK_dbo.CustomUserClaim_dbo.CustomUser_UserId] FOREIGN KEY([UserId])
-REFERENCES [dbo].[CustomUser] ([Id])
-ON DELETE CASCADE
-GO
-
-ALTER TABLE [dbo].[CustomUserClaim] CHECK CONSTRAINT [FK_dbo.CustomUserClaim_dbo.CustomUser_UserId]
-GO
-
+CREATE NONCLUSTERED INDEX [IX_CustomUserRole_RoleId]
+    ON [dbo].[CustomUserRole]([RoleId] ASC);
 
 

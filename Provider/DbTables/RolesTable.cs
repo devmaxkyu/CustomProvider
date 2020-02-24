@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 
 
-namespace CustomProvider.Data
+namespace CustomProvider.Provider
 {
     public class RolesTable
     {

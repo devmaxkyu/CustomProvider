@@ -37,6 +37,8 @@ namespace CustomProvider
             services.AddTransient<IUserStore<User>, UserStore>();
             services.AddTransient<IRoleStore<Role>, RoleStore>();
             services.AddTransient<UsersTable>();
+            services.AddTransient<RolesTable>();
+            services.AddTransient<UserRolesTable>();
 
             // DI : Db Service
             services.AddDbContextPool<AppDbContext>(

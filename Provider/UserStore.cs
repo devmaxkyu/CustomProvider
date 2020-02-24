@@ -2,19 +2,29 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CustomProvider.Provider
 {
-    public class UserStore : IUserStore<User>, IUserPasswordStore<User>
+    public class UserStore : IUserStore<User>, IUserPasswordStore<User>, IUserRoleStore<User>
     {
         private readonly UsersTable _usersTable;
+        private readonly UserRolesTable _userRolesTable;
 
-        public UserStore(UsersTable usersTable)
+        public UserStore(UsersTable usersTable, UserRolesTable userRolesTable)
         {
             _usersTable = usersTable;
+            _userRolesTable = userRolesTable;
+        }
+
+        public async Task AddToRoleAsync(User user, string roleName, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (roleName == null) throw new ArgumentNullException(nameof(roleName));
+
+            await _userRolesTable.AddToRoleAsync(user, roleName);
         }
 
         #region createuser
@@ -35,7 +45,6 @@ namespace CustomProvider.Provider
             if (user == null) throw new ArgumentNullException(nameof(user));
 
             return await _usersTable.DeleteAsync(user);
-
         }
 
         public void Dispose()
@@ -68,7 +77,11 @@ namespace CustomProvider.Provider
 
         public Task<string> GetNormalizedUserNameAsync(User user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            return Task.FromResult<string>(user.NormalizedUserName);
+
         }
 
         public Task<string> GetPasswordHashAsync(User user, CancellationToken cancellationToken)
@@ -77,6 +90,15 @@ namespace CustomProvider.Provider
             if (user == null) throw new ArgumentNullException(nameof(user));
 
             return Task.FromResult(user.PasswordHash);
+        }
+
+        public async Task<IList<string>> GetRolesAsync(User user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+
+            return await _userRolesTable.GetRolesByUserId(user);
         }
 
         public Task<string> GetUserIdAsync(User user, CancellationToken cancellationToken)
@@ -95,6 +117,11 @@ namespace CustomProvider.Provider
             return Task.FromResult(user.UserName);
         }
 
+        public Task<IList<User>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<bool> HasPasswordAsync(User user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -105,6 +132,16 @@ namespace CustomProvider.Provider
             }
 
             return Task.FromResult(!String.IsNullOrEmpty(user.PasswordHash));
+        }
+
+        public Task<bool> IsInRoleAsync(User user, string roleName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveFromRoleAsync(User user, string roleName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public Task SetNormalizedUserNameAsync(User user, string normalizedName, CancellationToken cancellationToken)
@@ -130,7 +167,12 @@ namespace CustomProvider.Provider
 
         public Task SetUserNameAsync(User user, string userName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (userName == null) throw new ArgumentNullException(nameof(userName));
+
+            user.UserName = userName;
+            return Task.FromResult<object>(null);
         }
 
         public async Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken)
